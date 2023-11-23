@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 function sendInputToServer(input) {
-    let url = '/api/route'; // Default URL
+    let url = 'api/route'; // Default URL
     let body = {};
     let doFetch = false;
     console.log("Current step: " + currentStep);
@@ -88,13 +88,13 @@ function sendInputToServer(input) {
     switch (currentStep) {
         case 1:            
             updateChatBox("<strong>ChatLibs: </strong>Thinking about your story...");
-            url = '/api/write_story';
+            url = 'api/write_story';
             body = { topic: input };
             console.log(body);
             doFetch = true;              
             break;
         case 2:
-            url = '/api/get_title';
+            url = 'api/get_title';
             body = { data: storyData.story };
             console.log(body);
             doFetch = true;              
@@ -118,7 +118,7 @@ function sendInputToServer(input) {
             updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
-            url = '/api/write_newStory';
+            url = 'api/write_newStory';
             body = {
                 story: storyData.story,
                 adjective1: storyData.adjective1,
@@ -133,7 +133,7 @@ function sendInputToServer(input) {
             break;
         case 9:
             updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
-            url = '/api/get_image';
+            url = 'api/get_image';
             body = { data: storyData.newStory };
             console.log(body);
             doFetch = true;             
