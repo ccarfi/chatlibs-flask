@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<script src="{{ url_for('static', filename='script.js') }}" defer></script>
+</head>
+<body>
+<div id="container">
+    <div class="header-container">
+<!--   
+      <img src="path/to/logo.png" alt="Logo" class="logo">
+      <ul class="menu">
+        <li class="menu-item"><a href="#link1">Menu Item 1</a></li>
+        <li class="menu-item"><a href="#link2">Menu Item 2</a></li>
+-->
+      </ul>
+    </div>
+   <img src="{{ url_for('static', filename='chatlibs-logo.png') }}" alt="ChatLibs logo" id="center_image">
+    <div id="description">
+      <h2>
+        ChatLibs
+      </h2>
+      <h3>
+        An ad-lib style interactive story generator
+      </h3>
+    </div>
+    <div id="chat_box">&nbsp;</div>
+    <div class="input-group">
+      <input type="text" class="input-field" id="input_field" placeholder="">
+      <button class="enter-button" id="enter_button">ENTER</button>
+    </div>
+    <img class="image-waiting" src="" alt="Story illustration" id="return_image">
+</div>
+</body>
+</html>
+
