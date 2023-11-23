@@ -21,7 +21,6 @@ def index():
 def write_story():
     user_input = request.json['topic']
     prompt = f"Write a creative, silly 75-word children's story about {user_input}. Include characters, a conflict, rising action, a surprising resolution, and a piece of short dialogue."
-    return ('this is a test')
 #    response = openai.ChatCompletion.create(
 #        model=chatModel,
 #        messages=[
@@ -29,10 +28,11 @@ def write_story():
 #            {"role": "user", "content": prompt}
 #        ]
 #    )
-#    story_response = {
-#        "responseVariableName": "story",
-#        "value": response.choices[0].message['content']
-#    }
+#    response.choices[0].message['content'
+    story_response = {
+        "responseVariableName": "story",
+        "value": "this is a test"
+    }
     return jsonify(story_response)
 
 
