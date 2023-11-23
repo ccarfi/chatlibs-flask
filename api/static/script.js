@@ -94,7 +94,7 @@ function sendInputToServer(input) {
             doFetch = true;              
             break;
         case 2:
-            url = 'api/get_title';
+            url = '/get_title';
             body = { data: storyData.story };
             console.log(body);
             doFetch = true;              
@@ -118,7 +118,7 @@ function sendInputToServer(input) {
             updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
-            url = 'api/write_newStory';
+            url = '/write_newStory';
             body = {
                 story: storyData.story,
                 adjective1: storyData.adjective1,
@@ -133,7 +133,7 @@ function sendInputToServer(input) {
             break;
         case 9:
             updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
-            url = 'api/get_image';
+            url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
             doFetch = true;             
