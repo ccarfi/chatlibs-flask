@@ -29,6 +29,20 @@ def write_story():
 #        ]
 #    )
 #    response.choices[0].message['content'
+    try:
+    response = openai.ChatCompletion.create(
+        model=chatModel,
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+except openai.error.OpenAIError as e:
+    # Handle general OpenAI API errors
+    print(f"An OpenAI API error occurred: {e}")
+except Exception as e:
+    # Handle other exceptions
+    print(f"A general error occurred: {e}")
     story_response = {
         "responseVariableName": "story",
         "value": "this is a test"
