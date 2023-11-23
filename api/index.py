@@ -37,12 +37,12 @@ def write_story():
             {"role": "user", "content": prompt}
         ]
     )
-except openai.error.OpenAIError as e:
-    # Handle general OpenAI API errors
-    print(f"An OpenAI API error occurred: {e}")
-except Exception as e:
-    # Handle other exceptions
-    print(f"A general error occurred: {e}")
+    except openai.error.OpenAIError as e:
+        # Handle general OpenAI API errors
+        print(f"An OpenAI API error occurred: {e}")
+    except Exception as e:
+        # Handle other exceptions
+        print(f"A general error occurred: {e}")
     story_response = {
         "responseVariableName": "story",
         "value": "this is a test"
