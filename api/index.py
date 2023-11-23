@@ -19,9 +19,9 @@ def index():
 
 @app.route('/write_story', methods=['POST'])
 def write_story():
-    return ('this is a test')
     user_input = request.json['topic']
     prompt = f"Write a creative, silly 75-word children's story about {user_input}. Include characters, a conflict, rising action, a surprising resolution, and a piece of short dialogue."
+    return ('this is a test')
 #    response = openai.ChatCompletion.create(
 #        model=chatModel,
 #        messages=[
