@@ -33,7 +33,7 @@ def write_story():
 #        "value": response.choices[0].message['content']
 #    }
     story_response = {
-        "responseVariableName": "echoing-the-input-back",
+        "responseVariableName": "story",
         "value": user_input]
     }
     return jsonify(story_response)
