@@ -34,7 +34,7 @@ def write_story():
 #    }
     story_response = {
         "responseVariableName": "story",
-        "value": user_input]
+        "value": {user_input}]
     }
     return jsonify(story_response)
 
