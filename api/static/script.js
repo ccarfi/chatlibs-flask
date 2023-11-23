@@ -88,7 +88,7 @@ function sendInputToServer(input) {
     switch (currentStep) {
         case 1:            
             updateChatBox("<strong>ChatLibs: </strong>Thinking about your story...");
-            url = '/api//write_story';
+            url = '/api/write_story';
             body = { topic: input };
             console.log(body);
             doFetch = true;              
