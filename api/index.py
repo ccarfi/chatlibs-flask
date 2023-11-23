@@ -17,7 +17,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 def index():
     return render_template('index.html')
 
-@app.route('/write_story', methods=['POST'])
+@app.route('/api/write_story', methods=['POST'])
 def write_story():
     user_input = request.json['topic']
     prompt = f"Write a creative, silly 75-word children's story about {user_input}. Include characters, a conflict, rising action, a surprising resolution, and a piece of short dialogue."
@@ -35,7 +35,7 @@ def write_story():
     return jsonify(story_response)
 
 
-@app.route('/get_title', methods=['POST'])
+@app.route('/api/get_title', methods=['POST'])
 def get_title():
     story = request.json['data']
     
@@ -56,7 +56,7 @@ def get_title():
     return jsonify(title_response)
 
 
-@app.route('/get_image', methods=['POST'])
+@app.route('/api/get_image', methods=['POST'])
 def get_image():
 
     story = request.json['data']
@@ -75,7 +75,7 @@ def get_image():
     return jsonify(imageURL_response)
 
 
-@app.route('/write_newStory', methods=['POST'])
+@app.route('/api/write_newStory', methods=['POST'])
 def write_newStory():
     data = request.json
     original_story = data.get('story')
