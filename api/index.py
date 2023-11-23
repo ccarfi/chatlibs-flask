@@ -45,7 +45,7 @@ def write_story():
         print(f"A general error occurred: {e}")
     story_response = {
         "responseVariableName": "story",
-        "value": "this is a test"
+        "value": response.choices[0].message['content']
     }
     return jsonify(story_response)
 
