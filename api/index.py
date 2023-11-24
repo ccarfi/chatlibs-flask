@@ -6,7 +6,7 @@ import requests
 app = Flask(__name__)
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-imageModel = "dall-e-2"
+imageModel = "dall-e-3"
 chatModel = "gpt-4"
 
 
@@ -80,7 +80,7 @@ def get_image():
         model=imageModel,
         prompt=PROMPT,
         n=1,
-        size="512x512",
+        size="1024x1024",
     )
 
     imageURL_response = {
