@@ -6,9 +6,6 @@
     "api/static/*.*": {
       "maxDuration": 60
     },
-    "api/templates/*.*": {
-      "maxDuration": 60
-    },
     "api/*.*": {
       "maxDuration": 60
     },
