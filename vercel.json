@@ -3,7 +3,16 @@
     { "source": "/(.*)", "destination": "/api/index" }
   ],
   "functions": {
-    "api/static/*.js": {
+    "api/static/*.*": {
+      "maxDuration": 60
+    },
+    "api/templates/*.*": {
+      "maxDuration": 60
+    },
+    "api/*.*": {
+      "maxDuration": 60
+    },
+    "*.*": {
       "maxDuration": 60
     }
   }
