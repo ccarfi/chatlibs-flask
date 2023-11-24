@@ -5,12 +5,6 @@
   "functions": {
     "api/static/*.*": {
       "maxDuration": 60
-    },
-    "api/*.*": {
-      "maxDuration": 60
-    },
-    "*.*": {
-      "maxDuration": 60
     }
   }
 }
