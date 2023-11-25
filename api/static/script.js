@@ -12,11 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
         "<strong>ChatLibs: </strong>Enter a topic for the story",
         "", 
         "<strong>ChatLibs: </strong>Please give me an adjective",
-        "<strong>ChatLibs: </strong>How about another adjective",
-        "<strong>ChatLibs: </strong>Thanks — tell me one more adjective",
         "<strong>ChatLibs: </strong>And a noun",
-        "<strong>ChatLibs: </strong>How about a verb",
-        "<strong>ChatLibs: </strong>One last adjective",
+        "<strong>ChatLibs: </strong>How about another adjective",
+        "<strong>ChatLibs: </strong>And a verb",
+        "<strong>ChatLibs: </strong>Thanks — tell me one more adjective",
+        "<strong>ChatLibs: </strong>One last noun",
         ""
     ];
 
