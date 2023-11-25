@@ -192,6 +192,16 @@ function sendInputToServer(input) {
         }
     });
 
+    const inputFields = document.querySelectorAll('input');
+
+    inputFields.forEach(input => {
+        input.addEventListener('focus', () => {
+            document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+        });
+        input.addEventListener('blur', () => {
+            document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1');
+        });
+    });
 
 
     // Start the conversation with the first prompt
