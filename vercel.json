@@ -3,8 +3,8 @@
     { "source": "/(.*)", "destination": "/api/index" }
   ],
   "functions": {
-    "api/static/*.*": {
-      "maxDuration": 120
-    }
+    "api/index": {
+      maxDuration":120
+    }  
   }
 }
