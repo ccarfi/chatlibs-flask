@@ -113,9 +113,10 @@ function sendInputToServer(input) {
             storyData.verb = input;
             break;
         case 7:
-            storyData.adjective3 = input;;
+            storyData.adjective3 = input;
             break;
         case 8:
+            storyData.noun2 = input;
             updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
@@ -126,8 +127,8 @@ function sendInputToServer(input) {
                 adjective2: storyData.adjective2,
                 adjective3: storyData.adjective3,
                 noun1: storyData.noun1,
-                verb: storyData.verb,
-                noun2: input
+                noun2: storyData.noun2,
+                verb: storyData.verb
             };
             console.log(body);
             doFetch = true;              
