@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (currentStep == 8) {
              updateChatBox(storyData.newStory);
+             emphasizeStoryWords()
+             updateChatBox(storyData.newStoryWithEmphasis);
         }
      
         if (currentStep == 9) {
@@ -160,7 +162,29 @@ function sendInputToServer(input) {
     }
 }
 
+    function emphasizeStoryWords() {
+        // Check if the required data exists
+        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun || !storyData.verb) {
+            console.error('Missing story data for emphasis');
+            return;
+        }
 
+        // List of words to emphasize
+        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun, storyData.verb];
+
+        // Create a new story with emphasis
+        let emphasizedStory = storyData.newStory;
+
+        // Replace each word with its emphasized version
+        wordsToEmphasize.forEach(word => {
+            const regex = new RegExp(`\\b${word}\\b`, 'gi'); // Match the word as a whole word, case-insensitive
+            emphasizedStory = emphasizedStory.replace(regex, `<em>${word}</em>`);
+        });
+
+        // Assign the new story with emphasis to storyData
+        storyData.newStoryWithEmphasis = emphasizedStory;
+    }
+    
     // Function to handle input submission
     function handleSubmit() {
         const userInput = inputField.value;
