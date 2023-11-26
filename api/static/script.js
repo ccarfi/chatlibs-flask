@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Prompts for each step
     const prompts = [
-        "<strong>ChatLibs: </strong>Enter a topic for the story",
+        "<strong>ChatLibs: </strong>Enter a topic for the story",  
         "", 
-        "<strong>ChatLibs: </strong>Please give me an adjective",
+        "<strong>ChatLibs: </strong>Please give me an adjective",   
         "<strong>ChatLibs: </strong>And a noun",
         "<strong>ChatLibs: </strong>How about another adjective",
         "<strong>ChatLibs: </strong>And a verb",
@@ -104,18 +104,19 @@ function sendInputToServer(input) {
             storyData.adjective1 = input;
             break;
         case 4:
-            storyData.adjective2 = input;
+            storyData.noun1 = input;
             break;
         case 5:
-             storyData.adjective3 = input;
+             storyData.adjective2 = input;
             break;
         case 6:
-            storyData.noun = input;
+            storyData.verb = input;
             break;
         case 7:
-            storyData.verb = input;;
+            storyData.adjective3 = input;
             break;
         case 8:
+            storyData.noun2 = input;
             updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
@@ -125,9 +126,9 @@ function sendInputToServer(input) {
                 adjective1: storyData.adjective1,
                 adjective2: storyData.adjective2,
                 adjective3: storyData.adjective3,
-                noun: storyData.noun,
-                verb: storyData.verb,
-                lastAdjective: input
+                noun1: storyData.noun1,
+                noun2: storyData.noun2,
+                verb: storyData.verb
             };
             console.log(body);
             doFetch = true;              
@@ -163,13 +164,13 @@ function sendInputToServer(input) {
 
     function emphasizeStoryWords() {
         // Check if the required data exists
-        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun || !storyData.verb) {
+        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun1 || !storyData.verb || !storyData.noun2 ) {
             console.error('Missing story data for emphasis');
             return;
         }
 
         // List of words to emphasize
-        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun, storyData.verb];
+        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun1, storyData.verb, storyData.noun2];
 
         // Create a new story with emphasis
         let emphasizedStory = storyData.newStory;
