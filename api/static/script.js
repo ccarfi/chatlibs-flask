@@ -61,10 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (currentStep == 2) {
-             updateChatBox("<strong>ChatLibs: </strong>Your story is: <br>"+storyData.title);
+             updateChatBox("<strong>ChatLibs: </strong>Your story is: <br><strong>"+storyData.title+"</strong>");
         }
 
         if (currentStep == 8) {
+             updateChatBox("<br><strong>"+storyData.title+"</strong><br><br>");
              emphasizeStoryWords()
              updateChatBox(storyData.newStoryWithEmphasis);
         }
