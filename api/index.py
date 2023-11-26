@@ -90,12 +90,12 @@ def write_newStory():
     adjective2=data.get('adjective2')
     adjective3=data.get('adjective3')
     noun1 = data.get('noun1')
-    verb = data.get('verb')
     noun2=data.get('noun2')
+    verb = data.get('verb')
 
 
     prompt = (f"Integrate the replacement values included below into this original story. \n\nOriginal Story:\n{original_story}\n"
-             f"Replacement values to add into the story:\n{adjective1}\n{adjective2}\n{adjective3}\n{noun1}\n{verb}\n{noun2}\n\n"
+             f"Replacement values to add into the story:\n{adjective1}\n{adjective2}\n{adjective3}\n{noun1}\n{noun2}\n{verb}\n\n"
              f"Updated story that includes all the replacement values:")
     response = openai.ChatCompletion.create(
         model=chatModel,
