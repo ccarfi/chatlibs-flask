@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (currentStep == 8) {
-             updateChatBox(storyData.newStory);
              emphasizeStoryWords()
              updateChatBox(storyData.newStoryWithEmphasis);
         }
