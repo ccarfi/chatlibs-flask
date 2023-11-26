@@ -110,7 +110,7 @@ function sendInputToServer(input) {
              storyData.adjective3 = input;
             break;
         case 6:
-            storyData.noun = input;
+            storyData.noun1 = input;
             break;
         case 7:
             storyData.verb = input;;
@@ -125,7 +125,7 @@ function sendInputToServer(input) {
                 adjective1: storyData.adjective1,
                 adjective2: storyData.adjective2,
                 adjective3: storyData.adjective3,
-                noun: storyData.noun,
+                noun: storyData.noun1,
                 verb: storyData.verb,
                 lastAdjective: input
             };
@@ -163,13 +163,13 @@ function sendInputToServer(input) {
 
     function emphasizeStoryWords() {
         // Check if the required data exists
-        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun || !storyData.verb) {
+        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun1 || !storyData.verb) {
             console.error('Missing story data for emphasis');
             return;
         }
 
         // List of words to emphasize
-        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun, storyData.verb];
+        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun1, storyData.verb];
 
         // Create a new story with emphasis
         let emphasizedStory = storyData.newStory;
