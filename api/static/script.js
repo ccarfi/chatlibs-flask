@@ -178,7 +178,7 @@ function sendInputToServer(input) {
         // Replace each word with its emphasized version
         wordsToEmphasize.forEach(word => {
             const regex = new RegExp(`\\b${word}\\b`, 'gi'); // Match the word as a whole word, case-insensitive
-            emphasizedStory = emphasizedStory.replace(regex, `<em>${word}</em>`);
+            emphasizedStory = emphasizedStory.replace(regex, `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`);
         });
 
         // Assign the new story with emphasis to storyData
