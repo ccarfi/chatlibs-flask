@@ -1,4 +1,16 @@
-/* Add your CSS styling here */
+/* Import Copse and Mulish fonts from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Copse&family=Mulish&display=swap');
+
+/* Apply the Copse font to H1 elements */
+h1 {
+    font-family: 'Copse', serif;
+}
+
+/* Apply the Mulish font to all other elements */
+body {
+    font-family: 'Mulish', sans-serif;
+}
+
 body, html {
   padding: 0;
   margin: 0;
