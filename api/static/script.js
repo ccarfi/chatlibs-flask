@@ -9,14 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Prompts for each step
     const prompts = [
-        "<strong>ChatLibs: </strong>Enter a topic for the story",  
+        "<bold>ChatLibs: </bold>Enter a topic for the story",  
         "", 
-        "<strong>ChatLibs: </strong>Please give me an adjective",   
-        "<strong>ChatLibs: </strong>And a noun",
-        "<strong>ChatLibs: </strong>How about another adjective",
-        "<strong>ChatLibs: </strong>And a verb",
-        "<strong>ChatLibs: </strong>Thanks — tell me one more adjective",
-        "<strong>ChatLibs: </strong>One last noun",
+        "<bold>ChatLibs: </bold>Please give me an adjective",   
+        "<bold>ChatLibs: </bold>And a noun",
+        "<bold>ChatLibs: </bold>How about another adjective",
+        "<bold>ChatLibs: </bold>And a verb",
+        "<bold>ChatLibs: </bold>Thanks — tell me one more adjective",
+        "<bold>ChatLibs: </bold>One last noun",
         ""
     ];
 
@@ -61,11 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (currentStep == 2) {
-             updateChatBox("<strong>ChatLibs: </strong>Your story is: <br><strong>"+storyData.title+"</strong>");
+             updateChatBox("<>ChatLibs: </>Your story is: <br><>"+storyData.title+"</>");
         }
 
         if (currentStep == 8) {
-             updateChatBox("<br><strong>"+storyData.title+"</strong><br>");
+             updateChatBox("<br><>"+storyData.title+"</><br>");
              emphasizeStoryWords()
              updateChatBox(storyData.newStoryWithEmphasis);
         }
@@ -89,7 +89,7 @@ function sendInputToServer(input) {
 
     switch (currentStep) {
         case 1:            
-            updateChatBox("<strong>ChatLibs: </strong>Thinking about your story...");
+            updateChatBox("<>ChatLibs: </>Thinking about your story...");
             url = '/write_story';
             body = { topic: input };
             console.log(body);
@@ -118,7 +118,7 @@ function sendInputToServer(input) {
             break;
         case 8:
             storyData.noun2 = input;
-            updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
+            updateChatBox("<>ChatLibs: </>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
             url = '/write_newStory';
@@ -135,7 +135,7 @@ function sendInputToServer(input) {
             doFetch = true;              
             break;
         case 9:
-            updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
+            updateChatBox("<>ChatLibs: </>Drawing a picture for you!");
             url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
@@ -179,7 +179,7 @@ function sendInputToServer(input) {
         // Replace each word with its emphasized version
         wordsToEmphasize.forEach(word => {
             const regex = new RegExp(`\\b${word}\\b`, 'gi'); // Match the word as a whole word, case-insensitive
-            emphasizedStory = emphasizedStory.replace(regex, `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`);
+            emphasizedStory = emphasizedStory.replace(regex, `<em><><u>&nbsp;${word}&nbsp;</u></></em>`);
         });
 
         // Assign the new story with emphasis to storyData
@@ -194,7 +194,7 @@ function sendInputToServer(input) {
         enterButton.classList.add('button-waiting');
         enterButton.disabled=true;
         inputField.disabled=true;
-        updateChatBox(`<strong>You:</strong> ${userInput}`);
+        updateChatBox(`<>You:</> ${userInput}`);
         sendInputToServer(userInput);
     }
 
