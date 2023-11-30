@@ -61,11 +61,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (currentStep == 2) {
-             updateChatBox("<>ChatLibs: </>Your story is: <br><>"+storyData.title+"</>");
+             updateChatBox("<strong>ChatLibs: </strong>Your story is: <br><strong>"+storyData.title+"</strong>");
         }
 
         if (currentStep == 8) {
-             updateChatBox("<br><>"+storyData.title+"</><br>");
+             updateChatBox("<br><strong>"+storyData.title+"</strong><br>");
              emphasizeStoryWords()
              updateChatBox(storyData.newStoryWithEmphasis);
         }
@@ -89,7 +89,7 @@ function sendInputToServer(input) {
 
     switch (currentStep) {
         case 1:            
-            updateChatBox("<>ChatLibs: </>Thinking about your story...");
+            updateChatBox("<strong>ChatLibs: </strong>Thinking about your story...");
             url = '/write_story';
             body = { topic: input };
             console.log(body);
@@ -118,7 +118,7 @@ function sendInputToServer(input) {
             break;
         case 8:
             storyData.noun2 = input;
-            updateChatBox("<>ChatLibs: </>Here we go!...");
+            updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
             inputField.classList.add('hidden-element');
             enterButton.classList.add('hidden-element');
             url = '/write_newStory';
@@ -135,7 +135,7 @@ function sendInputToServer(input) {
             doFetch = true;              
             break;
         case 9:
-            updateChatBox("<>ChatLibs: </>Drawing a picture for you!");
+            updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
             url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
@@ -179,7 +179,7 @@ function sendInputToServer(input) {
         // Replace each word with its emphasized version
         wordsToEmphasize.forEach(word => {
             const regex = new RegExp(`\\b${word}\\b`, 'gi'); // Match the word as a whole word, case-insensitive
-            emphasizedStory = emphasizedStory.replace(regex, `<em><><u>&nbsp;${word}&nbsp;</u></></em>`);
+            emphasizedStory = emphasizedStory.replace(regex, `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`);
         });
 
         // Assign the new story with emphasis to storyData
@@ -194,7 +194,7 @@ function sendInputToServer(input) {
         enterButton.classList.add('button-waiting');
         enterButton.disabled=true;
         inputField.disabled=true;
-        updateChatBox(`<>You:</> ${userInput}`);
+        updateChatBox(`<strong>You:</strong> ${userInput}`);
         sendInputToServer(userInput);
     }
 
