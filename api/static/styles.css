@@ -9,6 +9,8 @@ h1, h2 {
 /* Apply the Mulish font to smaller header elements */
 h3 {
     font-family: 'Mulish', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
 }
 
 /* Apply the Mulish font to all other elements */
