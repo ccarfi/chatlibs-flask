@@ -9,14 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Prompts for each step
     const prompts = [
-        "<bold>ChatLibs: </bold>Enter a topic for the story",  
+        "<strong>ChatLibs: </strong>Enter a topic for the story",  
         "", 
-        "<bold>ChatLibs: </bold>Please give me an adjective",   
-        "<bold>ChatLibs: </bold>And a noun",
-        "<bold>ChatLibs: </bold>How about another adjective",
-        "<bold>ChatLibs: </bold>And a verb",
-        "<bold>ChatLibs: </bold>Thanks — tell me one more adjective",
-        "<bold>ChatLibs: </bold>One last noun",
+        "<strong>ChatLibs: </strong>Please give me an adjective",   
+        "<strong>ChatLibs: </strong>And a noun",
+        "<strong>ChatLibs: </strong>How about another adjective",
+        "<strong>ChatLibs: </strong>And a verb",
+        "<strong>ChatLibs: </strong>Thanks — tell me one more adjective",
+        "<strong>ChatLibs: </strong>One last noun",
         ""
     ];
 
