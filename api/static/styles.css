@@ -12,6 +12,7 @@ h3 {
     font-family: 'Mulish', sans-serif;
     font-size: 20px;
     font-weight: 400;
+    margin-top: 0px; /* Reduce bottom margin */
 }
 
 /* Apply the Mulish font to all other elements */
