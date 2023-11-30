@@ -4,6 +4,7 @@
 /* Apply the Copse font to large header elements */
 h1, h2 {
     font-family: 'Copse', serif;
+    margin-bottom: 10px; /* Reduce bottom margin */
 }
 
 /* Apply the Mulish font to smaller header elements */
