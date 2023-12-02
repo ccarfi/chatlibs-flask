@@ -140,7 +140,7 @@ function sendInputToServer(input) {
             body = { data: storyData.newStory };
             console.log(body);
             doFetch = true;  
-            updateChatBox("<a href="/story?title="+storydata.title+"&description="+story.description+"&image_url="story.imageURL+">See story page</a>");
+            updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storydata.title)+"&description="+encodeURIComponent(story.description)+"&image_url="+encodeURIComponent(story.imageURL)+">See story page</a>");
             break;
         default:
             break;
