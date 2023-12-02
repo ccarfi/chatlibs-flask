@@ -120,6 +120,14 @@ body, html {
   margin-bottom: 100px;
 }
 
+#header_title {
+   margin-left: auto;   /* These two margin properties center the block element */
+   margin-right: auto;
+   max-width: 700px;    /* Maximum width same as chat box */
+   width: calc(100% - 40px); /* Responsive width similar to chat box */
+   text-align: center;  /* Center the text within the h1 element */
+}
+
 .button-waiting {
   background-color: #808080; /* Or any grey shade you prefer, e.g., #808080 */
 }
