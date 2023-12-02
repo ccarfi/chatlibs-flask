@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
      
         if (currentStep == 9) {
              returnImage.src = storyData.imageURL; // Update the return image with the new image URL
+             updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storyData.title)+"&description="+encodeURIComponent(storyData.newStory)+"&image_url="+encodeURIComponent(storyData.imageURL)+">See story page with image</a>");
              // Remove the 'image-waiting' class to unhide the image
              returnImage.classList.remove('image-waiting');
         }
@@ -136,12 +137,11 @@ function sendInputToServer(input) {
             break;
         case 9:
             updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
-            updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storydata.title)+"&description="+encodeURIComponent(story.description)+"&image_url="+encodeURIComponent(story.imageURL)+">See story page</a>");
+            updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storyData.title)+"&description="+encodeURIComponent(storyData.newStory)+">See story page befoe image</a>");
             url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
             doFetch = true;  
-            updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storydata.title)+"&description="+encodeURIComponent(story.description)+"&image_url="+encodeURIComponent(story.imageURL)+">See story page</a>");
             break;
         default:
             break;
