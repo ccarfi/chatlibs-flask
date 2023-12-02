@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
      
         if (currentStep == 9) {
              returnImage.src = storyData.imageURL; // Update the return image with the new image URL
-             updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storyData.title)+"&description="+encodeURIComponent(storyData.newStory)+"&image_url="+encodeURIComponent(storyData.imageURL)+">Share your story</a>");
+             updateChatBox("<strong>ChatLibs: </strong>Here is a link to your story you can share:");
+             updateChatBox("<a target="_blank" href=https://chatlibs.xyz/story?title="+encodeURIComponent(storyData.title)+"&description="+encodeURIComponent(storyData.newStory)+"&image_url="+encodeURIComponent(storyData.imageURL)+">"+storyData.title+"</a>");
              // Remove the 'image-waiting' class to unhide the image
              returnImage.classList.remove('image-waiting');
         }
