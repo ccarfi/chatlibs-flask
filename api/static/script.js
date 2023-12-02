@@ -136,6 +136,7 @@ function sendInputToServer(input) {
             break;
         case 9:
             updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
+            updateChatBox("<a href=https://chatlibs.xyz/story?title="+encodeURIComponent(storydata.title)+"&description="+encodeURIComponent(story.description)+"&image_url="+encodeURIComponent(story.imageURL)+">See story page</a>");
             url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
