@@ -139,7 +139,8 @@ function sendInputToServer(input) {
             url = '/get_image';
             body = { data: storyData.newStory };
             console.log(body);
-            doFetch = true;             
+            doFetch = true;  
+            updateChatBox("<a href="/story?title="+storydata.title+"&description="+story.description+"&image_url="story.imageURL+">See story page</a>");
             break;
         default:
             break;
