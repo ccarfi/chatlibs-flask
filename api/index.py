@@ -110,6 +110,13 @@ def write_newStory():
     }
     return jsonify(story_response)
 
+@app.route('/story')
+def story():
+    image_url = request.args.get('image_url', '')
+    title = request.args.get('title', 'Default Title')
+    description = request.args.get('description', 'Default Description')
+    return render_template('story.html', image_url=image_url, title=title, description=description)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
