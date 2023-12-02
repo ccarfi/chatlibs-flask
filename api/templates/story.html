@@ -1,14 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>ChatLibs | {{ title }}</title>
+    <meta name="description" content="{{ description }}">
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ description }}">
+    <meta property="og:image" content="{{ image_url }}">
+
+    <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@yourhandle"> <!-- Replace with your actual Twitter handle -->
+    <meta name="twitter:site" content="@chatlibs">
     <meta name="twitter:title" content="{{ title }}">
     <meta name="twitter:description" content="{{ description }}">
     <meta name="twitter:image" content="{{ image_url }}">
 </head>
 <body>
     <h1>{{ title }}</h1> <!-- Displaying the title -->
+    <br>
+    <p>{{ description }}</p> <!-- Displaying the story -->
+    <br>
     <img src="{{ image_url }}" alt="Story Image"> <!-- Displaying the image -->
+    Create your own at <a href="https://chatlibs.xyz>ChatLibs.xyz</a>
 </body>
 </html>
