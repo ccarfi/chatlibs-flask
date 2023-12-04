@@ -103,9 +103,26 @@ body, html {
 }
 
 .enter-button {
-  /* Styles for the button */
-  /* Ensure the button doesn't grow and only takes the space it needs */
+  background-color: #98aeea; /* Light blue background */
+  border: none; /* No border */
+  color: white; /* White text */
+  padding: 20px 40px; /* Padding to make the button taller and wider */
+  text-align: center; /* Center the text inside the button */
+  text-decoration: none; /* No underline on the text */
+  display: inline-block; /* Allows the button to be placed next to other inline elements */
+  font-size: 16px; /* Default text size */
+  margin: 4px 2px; /* Spacing around the button */
+  cursor: pointer; /* Changes the cursor to a pointer when hovering over the button */
+  border-radius: 80px; /* Rounded corners with a large radius to create a pill shape */
+  box-shadow: 0 4px #f7ede7; /* Soft shadow with a color that matches the border color in the image */
+  transition-duration: 0.4s; /* Makes the hover effect smooth */
 }
+
+.enter-button:hover {
+  background-color: #6b82d6; /* Darker blue when hovering */
+  box-shadow: 0 8px #f7ede7; /* Larger shadow when hovering */
+}
+
 
 #return_image {
   max-width: 700px;  /* The image will never be wider than 700px */
