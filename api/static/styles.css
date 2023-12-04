@@ -110,6 +110,7 @@ body, html {
   text-decoration: none; /* No underline on the text */
   display: inline-block; /* Allows the button to be placed next to other inline elements */
   font-size: 16px; /* Default text size */
+  padding: 5px 10px; /* Padding to make the button taller and wider */
   margin: 4px 2px; /* Spacing around the button */
   border-radius: 5px; /* Rounded corners */
   transition-duration: 0.4s; /* Makes the hover effect smooth */
