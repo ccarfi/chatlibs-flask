@@ -110,16 +110,14 @@ body, html {
   text-decoration: none; /* No underline on the text */
   display: inline-block; /* Allows the button to be placed next to other inline elements */
   font-size: 16px; /* Default text size */
-  padding: 3px 10px; /* Padding to make the button taller and wider */
+  padding: 4px 10px; /* Padding to make the button taller and wider */
   margin: 4px 2px; /* Spacing around the button */
   border-radius: 5px; /* Rounded corners */
   transition-duration: 0.4s; /* Makes the hover effect smooth */
-  box-shadow: 0 4px #f7ede7; /* Soft shadow with a color that matches the border color in the image */
 }
 
-.enter-button:not(.waiting):hover {
+.enter-button:not(.button-waiting):hover {
   background-color: #6b82d6; /* Darker blue when hovering */
-  box-shadow: 0 8px #f7ede7; /* Larger shadow when hovering */
 }
 
 #return_image {
