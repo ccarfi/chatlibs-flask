@@ -94,8 +94,8 @@ def write_newStory():
     verb = data.get('verb')
 
 
-    prompt = (f"Integrate the replacement values included below into this original story. \n\nOriginal Story:\n{original_story}\n"
-             f"Replacement values to add into the story:\n{adjective1}\n{adjective2}\n{adjective3}\n{noun1}\n{noun2}\n{verb}\n\n"
+    prompt = (f"Integrate the replacement values included below into this original story. Do not change anything in the story other than directly swapping a word of the same part of speech with one of these replacement values.  \n\nOriginal Story:\n{original_story}\n"
+             f"Replacement values to swap into the story:\n{adjective1}\n{adjective2}\n{adjective3}\n{noun1}\n{noun2}\n{verb}\n\n"
              f"Updated story that includes all the replacement values:")
     response = openai.ChatCompletion.create(
         model=chatModel,
