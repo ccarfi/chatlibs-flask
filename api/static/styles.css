@@ -146,8 +146,8 @@ body, html {
   height: auto;      /* Maintains the aspect ratio of the image */
   display: block;    /* Removes any default inline styling */
   border: 1px solid gray;            /* 1px wide border */
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 0px;
+  padding-right: 0px;
   margin-left: auto;
   margin-right: auto; /* Centers the image within its container */
   margin-top: 10px;
