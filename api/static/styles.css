@@ -141,10 +141,11 @@ body, html {
 }
 
 #ad_image {
-  max-width: 700px;  /* The image will never be wider than 700px */
+  max-width: 300px;  /* The image will never be wider than 700px */
   width: calc(100% - 40px);                       /* Makes the width responsive to the viewport */
   height: auto;      /* Maintains the aspect ratio of the image */
   display: block;    /* Removes any default inline styling */
+  border: 1px solid gray;            /* 1px wide border */
   padding-left: 10px;
   padding-right: 10px;
   margin-left: auto;
