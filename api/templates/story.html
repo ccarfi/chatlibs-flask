@@ -27,7 +27,7 @@
     <div id="chat_box">
       {{ description }} <!-- Displaying the story -->
     </div>  
-    <img src="/static/donors-choose-ad.png" alt="Story Image" id="ad_image">
+    <a href="https://donorschoose.org"><img src="{{ url_for('static', filename='donors-choose-ad.png') }}" alt="Ad Image" id="ad_image"></a>
     <img src="{{ image_url }}" alt="Story Image" id="return_image"> <!-- Displaying the image -->
 <!--    <h3 id="header_title"><a href="https://twitter.com/intent/tweet?text=Check+out+my+story%3A+{{ title }}+on+ChatLibs&url=https://chatlibs.xyz/story?title={{ title }}%26description={{ description }}%26image_url={{ image_url }}">Share this</a></h3> -->
 </body>
