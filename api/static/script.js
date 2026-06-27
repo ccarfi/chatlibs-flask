@@ -38,6 +38,26 @@ document.addEventListener('DOMContentLoaded', function () {
         enterButton.classList.add('hidden-element');
     }
 
+    // Escape user- and AI-provided text before it goes into innerHTML, so a
+    // topic/word like "<img onerror=...>" can't inject markup.
+    function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.textContent = s == null ? '' : String(s);
+        return div.innerHTML;
+    }
+
+    function showSpinner() {
+        const div = document.createElement('div');
+        div.innerHTML = '<span class="spinner"></span><br><br>';
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return div;
+    }
+
+    function removeSpinner(div) {
+        if (div && div.parentNode) div.parentNode.removeChild(div);
+    }
+
     // --- Server calls -------------------------------------------------------
 
     async function callApi(url, body) {
@@ -57,23 +77,29 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Word emphasis (highlights the user's words in the swapped story) ---
 
     function emphasizeStory(story) {
-        let emphasized = story;
+        let html = escapeHtml(story);
         flow.words.forEach(function (w) {
             const word = storyData[w.slot];
             if (!word) return;
-            const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
-            emphasized = emphasized.replace(
-                regex,
-                `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`
-            );
+            // Escape for HTML first, then for regex, so matching happens against
+            // the already-escaped story text.
+            const escWord = escapeHtml(word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escWord}\\b`, 'gi');
+            // $& re-inserts the matched (escaped) text, preserving its casing.
+            html = html.replace(regex, '<em><strong><u>&nbsp;$&&nbsp;</u></strong></em>');
         });
-        return emphasized;
+        return html;
     }
 
     // --- Restart ------------------------------------------------------------
 
     function offerRestart() {
+        // Build entirely with DOM nodes. The previous version did
+        // `wrapper.innerHTML += '<br><br>'` AFTER appending the link, which
+        // re-parsed the HTML and destroyed the link's click listener (#23).
+        const wrapper = document.createElement('div');
+        const label = document.createElement('strong');
+        label.textContent = 'ChatLibs: ';
         const link = document.createElement('a');
         link.href = '#';
         link.textContent = 'Write another story';
@@ -81,10 +107,10 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             restart();
         });
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = '<strong>ChatLibs: </strong>';
+        wrapper.appendChild(label);
         wrapper.appendChild(link);
-        wrapper.innerHTML += '<br><br>';
+        wrapper.appendChild(document.createElement('br'));
+        wrapper.appendChild(document.createElement('br'));
         chatBox.appendChild(wrapper);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -115,12 +141,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function handleTopic(topic) {
         chatlibsSays('Thinking about your story...');
-        const storyResp = await callApi('/api/story', { topic: topic });
-        storyData.story = storyResp.story;
+        const spinner = showSpinner();
+        try {
+            const storyResp = await callApi('/api/story', { topic: topic });
+            storyData.story = storyResp.story;
 
-        const titleResp = await callApi('/api/title', { story: storyData.story });
-        storyData.title = titleResp.title;
-        chatlibsSays(`Your story is: <br><strong>${storyData.title}</strong>`);
+            const titleResp = await callApi('/api/title', { story: storyData.story });
+            storyData.title = titleResp.title;
+        } finally {
+            removeSpinner(spinner);
+        }
+        chatlibsSays(`Your story is: <br><strong>${escapeHtml(storyData.title)}</strong>`);
 
         phase = 'words';
         wordIndex = 0;
@@ -135,18 +166,28 @@ document.addEventListener('DOMContentLoaded', function () {
         const words = {};
         flow.words.forEach(function (w) { words[w.slot] = storyData[w.slot]; });
 
-        const remixResp = await callApi('/api/remix', {
-            story: storyData.story,
-            words: words
-        });
-        storyData.newStory = remixResp.story;
+        let spinner = showSpinner();
+        try {
+            const remixResp = await callApi('/api/remix', {
+                story: storyData.story,
+                words: words
+            });
+            storyData.newStory = remixResp.story;
+        } finally {
+            removeSpinner(spinner);
+        }
 
-        updateChatBox(`<br><strong>${storyData.title}</strong><br>`);
+        updateChatBox(`<br><strong>${escapeHtml(storyData.title)}</strong><br>`);
         updateChatBox(emphasizeStory(storyData.newStory));
 
         chatlibsSays('Drawing a picture for you!');
-        const imageResp = await callApi('/api/image', { story: storyData.newStory });
-        storyData.image = imageResp.image;
+        spinner = showSpinner();
+        try {
+            const imageResp = await callApi('/api/image', { story: storyData.newStory });
+            storyData.image = imageResp.image;
+        } finally {
+            removeSpinner(spinner);
+        }
 
         returnImage.src = storyData.image;
         returnImage.classList.remove('image-waiting');
@@ -154,7 +195,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
             '&description=' + encodeURIComponent(storyData.newStory);
         chatlibsSays('Here is a link to your story you can share:');
-        updateChatBox(`<a target="_blank" href="${shareUrl}">${storyData.title}</a>`);
+        updateChatBox('<a target="_blank" href="' + escapeHtml(shareUrl) + '">' +
+            escapeHtml(storyData.title) + '</a>');
 
         phase = 'done';
         offerRestart();
@@ -166,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const userInput = inputField.value.trim();
         if (userInput === '') return;
         inputField.value = '';
-        updateChatBox(`<strong>You:</strong> ${userInput}`);
+        updateChatBox('<strong>You:</strong> ' + escapeHtml(userInput));
         lockInput();
 
         try {
