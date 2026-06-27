@@ -74,6 +74,9 @@ def _google_image(prompt):
     from google import genai
     from google.genai import types
 
+    # Note: negative_prompt is NOT supported on the Gemini Developer API
+    # (API-key mode) — it's Vertex/Enterprise-only and 400s here. Text is kept
+    # out of images via the sanitized scene description built in the route.
     api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     try:
         client = genai.Client(api_key=api_key)

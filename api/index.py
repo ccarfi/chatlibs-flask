@@ -120,12 +120,32 @@ def remix_story():
 def get_image():
     def produce():
         story_text = request.get_json(force=True)["story"]
+
+        # First, turn the story into a purely visual scene description — no
+        # dialogue, sound effects, or names. This keeps text the image model
+        # would otherwise render (quotes, "SPLAT!", character names) out of its
+        # input entirely, which matters far more than prompt instructions.
+        describe_prompt = (
+            "You are planning a single illustration for a children's book. "
+            "Based on the story below, write a 2-3 sentence description of one "
+            "visual scene to illustrate. Describe only what is physically "
+            "visible: the characters' appearance, the setting, the action, "
+            "colors, and mood. Do NOT include any dialogue, quotations, sound "
+            "effects, onomatopoeia, character names, signs, or any words meant "
+            "to appear as text. Refer to characters by appearance, not by name. "
+            f"Return only the description.\n\nStory:\n{story_text}"
+        )
+        scene = generate_text(
+            describe_prompt,
+            system="You write concise, vivid visual scene descriptions.",
+            max_tokens=256,
+        )
+
         prompt = (
-            "A single whimsical, colorful children's-book illustration depicting "
-            "one cohesive scene from this story. Do NOT include any text, words, "
-            "letters, captions, titles, labels, speech bubbles, or panels — "
-            "purely a wordless picture.\n\n"
-            f"Story:\n{story_text}"
+            "A single whimsical, colorful children's-book illustration of one "
+            "cohesive scene. The image must contain absolutely no text, words, "
+            "letters, captions, labels, or speech bubbles — a purely wordless "
+            f"picture.\n\nScene: {scene}"
         )
         return {"image": generate_image(prompt)}
 
