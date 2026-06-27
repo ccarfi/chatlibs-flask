@@ -6,6 +6,13 @@ served to the client at /api/config. Every AI endpoint returns a uniform
 envelope and turns provider failures into a clean JSON error.
 """
 
+import os
+import sys
+
+# On Vercel the function runs from the project root, so api/ isn't on sys.path
+# and the sibling imports below would fail. Add this file's directory explicitly.
+sys.path.insert(0, os.path.dirname(__file__))
+
 from flask import Flask, jsonify, render_template, request
 
 from ai import AIError, generate_image, generate_text
