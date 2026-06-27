@@ -101,15 +101,24 @@ def remix_story():
     def produce():
         data = request.get_json(force=True)
         original = data["story"]
-        words = data["words"]  # {slot: value, ...}
-        replacements = "\n".join(f"- {value}" for value in words.values())
+        words = data["words"]  # {slot: value, ...}; slot name encodes the part of speech
+        # Label each word with its part of speech (adjective1 -> adjective) so
+        # the model places it correctly.
+        replacements = "\n".join(
+            f"- {slot.rstrip('0123456789')}: {value}"
+            for slot, value in words.items()
+        )
         prompt = (
-            "Integrate the replacement values below into the original story. "
-            "Do not change anything in the story other than directly swapping a "
-            "word of the same part of speech with one of these replacement "
-            "values. Return only the updated story.\n\n"
-            f"Original story:\n{original}\n\n"
-            f"Replacement values to swap in:\n{replacements}"
+            "Rework the story below so that it naturally includes EVERY one of "
+            "the words listed, each used at least once and as the indicated part "
+            "of speech. This is the whole point of the game, so do NOT drop or "
+            "skip any word. Prefer swapping a word of the same part of speech; "
+            "if a word has no natural slot, lightly adjust that sentence so the "
+            "word fits. Use each word in the exact form given where you can. "
+            "Keep the story coherent, silly, family-friendly, and about the same "
+            "length. Return only the updated story.\n\n"
+            f"Story:\n{original}\n\n"
+            f"Words that must ALL appear:\n{replacements}"
         )
         return {"story": generate_text(prompt)}
 
