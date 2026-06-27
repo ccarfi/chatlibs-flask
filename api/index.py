@@ -39,6 +39,17 @@ def _ai_route(produce):
         return jsonify({"error": "Something went wrong. Please try again."}), 502
 
 
+def _strip_heading(text):
+    """Drop a leading Markdown heading line (e.g. '# Title') if the model adds
+    one. The title is generated separately, so a heading in the body just shows
+    up as a stray '# ...' line in the chat (#21)."""
+    text = text.lstrip()
+    if text.startswith("#"):
+        parts = text.split("\n", 1)
+        return parts[1].lstrip() if len(parts) > 1 else ""
+    return text
+
+
 # --- Pages ------------------------------------------------------------------
 
 @app.route("/")
@@ -48,9 +59,16 @@ def index():
 
 @app.route("/story")
 def story():
+    # Only honor an image_url with a safe scheme. The app no longer passes one
+    # (images are ephemeral), but the param is public, so refuse anything that
+    # isn't an https/data URL. Jinja autoescaping covers title/description, and
+    # the client URL-encodes them via encodeURIComponent.
+    image_url = request.args.get("image_url", "")
+    if not (image_url.startswith("https://") or image_url.startswith("data:")):
+        image_url = ""
     return render_template(
         "story.html",
-        image_url=request.args.get("image_url", ""),
+        image_url=image_url,
         title=request.args.get("title", "A ChatLibs Story"),
         description=request.args.get("description", ""),
     )
@@ -72,13 +90,14 @@ def write_story():
         prompt = (
             f"Write a creative, silly 75-word children's story about {topic}. "
             "Include characters, a conflict, rising action, a surprising "
-            "resolution, and a piece of short dialogue. Return only the story."
+            "resolution, and a piece of short dialogue. Do not include a title "
+            "or any heading — return only the story prose."
         )
         story_text = generate_text(
             prompt,
             system="You are a playful children's story writer.",
         )
-        return {"story": story_text}
+        return {"story": _strip_heading(story_text)}
 
     return _ai_route(produce)
 
@@ -120,7 +139,7 @@ def remix_story():
             f"Story:\n{original}\n\n"
             f"Words that must ALL appear:\n{replacements}"
         )
-        return {"story": generate_text(prompt)}
+        return {"story": _strip_heading(generate_text(prompt))}
 
     return _ai_route(produce)
 
