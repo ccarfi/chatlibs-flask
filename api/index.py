@@ -1,122 +1,129 @@
-from flask import Flask, render_template, request, jsonify
-import os
-import openai
-import requests
+"""ChatLibs — Flask backend.
+
+Four stateless AI endpoints plus the two rendered pages. All game state and flow
+live in the browser (see static/script.js); the flow itself is data (flow.py),
+served to the client at /api/config. Every AI endpoint returns a uniform
+envelope and turns provider failures into a clean JSON error.
+"""
+
+from flask import Flask, jsonify, render_template, request
+
+from ai import AIError, generate_image, generate_text
+from flow import FLOW
 
 app = Flask(__name__)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-imageModel = "dall-e-3"
-chatModel = "gpt-4"
 
+def _ai_route(produce):
+    """Run an AI step, always returning JSON so the client never sees a raw 500.
 
-# Assuming you have set OPENAI_API_KEY as an environment variable
-openai.api_key = os.getenv('OPENAI_API_KEY')
-
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/write_story', methods=['POST'])
-def write_story():
-    user_input = request.json['topic']
-    prompt = f"Write a creative, silly 75-word children's story about {user_input}. Include characters, a conflict, rising action, a surprising resolution, and a piece of short dialogue."
+    Provider failures (AIError) and bad input map to clean messages; anything
+    unexpected is logged and returned as a generic 502 rather than an HTML page.
+    """
     try:
-        response = openai.ChatCompletion.create(
-            model=chatModel,
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-    except openai.error.OpenAIError as e:
-        # Handle general OpenAI API errors
-        print(f"An OpenAI API error occurred: {e}")
-    except Exception as e:
-        # Handle other exceptions
-        print(f"A general error occurred: {e}")
-    story_response = {
-        "responseVariableName": "story",
-        "value": response.choices[0].message['content']
-    }
-    return jsonify(story_response)
+        return jsonify(produce())
+    except AIError as e:
+        app.logger.warning("AI step failed: %s", e)
+        return jsonify({"error": str(e)}), 502
+    except (KeyError, TypeError):
+        return jsonify({"error": "Malformed request."}), 400
+    except Exception:  # noqa: BLE001 — API boundary must always return JSON
+        app.logger.exception("Unexpected error in AI step")
+        return jsonify({"error": "Something went wrong. Please try again."}), 502
 
 
-@app.route('/get_title', methods=['POST'])
-def get_title():
-    story = request.json['data']
-    
-    prompt = f"Create a catchy and creative title for this children's story: {story}"
-    
-    response = openai.ChatCompletion.create(
-        model=chatModel,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+# --- Pages ------------------------------------------------------------------
 
-    title_response = {
-        "responseVariableName": "title",
-        "value": response.choices[0].message['content']
-    }
-    return jsonify(title_response)
+@app.route("/")
+def index():
+    return render_template("index.html")
 
 
-@app.route('/get_image', methods=['POST'])
-def get_image():
-
-    story = request.json['data']
-    PROMPT = (f"Please create an photorealistic image based on this narrative:\n\n{story}\n")
-    response = openai.Image.create(
-        model=imageModel,
-        prompt=PROMPT,
-        n=1,
-        size="1024x1024",
-    )
-
-    imageURL_response = {
-        "responseVariableName": "imageURL",
-        "value": response["data"][0]["url"]
-    }
-    return jsonify(imageURL_response)
-
-
-@app.route('/write_newStory', methods=['POST'])
-def write_newStory():
-    data = request.json
-    original_story = data.get('story')
-    adjective1=data.get('adjective1')
-    adjective2=data.get('adjective2')
-    adjective3=data.get('adjective3')
-    noun1 = data.get('noun1')
-    noun2=data.get('noun2')
-    verb = data.get('verb')
-
-
-    prompt = (f"Integrate the replacement values included below into this original story. Do not change anything in the story other than directly swapping a word of the same part of speech with one of these replacement values.  \n\nOriginal Story:\n{original_story}\n"
-             f"Replacement values to swap into the story:\n{adjective1}\n{adjective2}\n{adjective3}\n{noun1}\n{noun2}\n{verb}\n\n"
-             f"Updated story that includes all the replacement values:")
-    response = openai.ChatCompletion.create(
-        model=chatModel,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-    story_response = {
-        "responseVariableName": "newStory",
-        "value": response.choices[0].message['content']  
-    }
-    return jsonify(story_response)
-
-@app.route('/story')
+@app.route("/story")
 def story():
-    image_url = request.args.get('image_url', '')
-    title = request.args.get('title', 'Default Title')
-    description = request.args.get('description', 'Default Description')
-    return render_template('story.html', image_url=image_url, title=title, description=description)
+    return render_template(
+        "story.html",
+        image_url=request.args.get("image_url", ""),
+        title=request.args.get("title", "A ChatLibs Story"),
+        description=request.args.get("description", ""),
+    )
 
 
-if __name__ == '__main__':
+# --- Flow config ------------------------------------------------------------
+
+@app.route("/api/config")
+def config():
+    return jsonify(FLOW)
+
+
+# --- AI endpoints -----------------------------------------------------------
+
+@app.route("/api/story", methods=["POST"])
+def write_story():
+    def produce():
+        topic = request.get_json(force=True)["topic"]
+        prompt = (
+            f"Write a creative, silly 75-word children's story about {topic}. "
+            "Include characters, a conflict, rising action, a surprising "
+            "resolution, and a piece of short dialogue. Return only the story."
+        )
+        story_text = generate_text(
+            prompt,
+            system="You are a playful children's story writer.",
+        )
+        return {"story": story_text}
+
+    return _ai_route(produce)
+
+
+@app.route("/api/title", methods=["POST"])
+def get_title():
+    def produce():
+        story_text = request.get_json(force=True)["story"]
+        prompt = (
+            "Create a catchy, creative title for this children's story. "
+            f"Return only the title, with no quotation marks.\n\n{story_text}"
+        )
+        return {"title": generate_text(prompt, max_tokens=64)}
+
+    return _ai_route(produce)
+
+
+@app.route("/api/remix", methods=["POST"])
+def remix_story():
+    def produce():
+        data = request.get_json(force=True)
+        original = data["story"]
+        words = data["words"]  # {slot: value, ...}
+        replacements = "\n".join(f"- {value}" for value in words.values())
+        prompt = (
+            "Integrate the replacement values below into the original story. "
+            "Do not change anything in the story other than directly swapping a "
+            "word of the same part of speech with one of these replacement "
+            "values. Return only the updated story.\n\n"
+            f"Original story:\n{original}\n\n"
+            f"Replacement values to swap in:\n{replacements}"
+        )
+        return {"story": generate_text(prompt)}
+
+    return _ai_route(produce)
+
+
+@app.route("/api/image", methods=["POST"])
+def get_image():
+    def produce():
+        story_text = request.get_json(force=True)["story"]
+        prompt = (
+            "A single whimsical, colorful children's-book illustration depicting "
+            "one cohesive scene from this story. Do NOT include any text, words, "
+            "letters, captions, titles, labels, speech bubbles, or panels — "
+            "purely a wordless picture.\n\n"
+            f"Story:\n{story_text}"
+        )
+        return {"image": generate_image(prompt)}
+
+    return _ai_route(produce)
+
+
+if __name__ == "__main__":
     app.run(debug=True)

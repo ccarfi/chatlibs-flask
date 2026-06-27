@@ -3,32 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"><head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>ChatLibs | {{ title }}</title>
     <meta name="description" content="{{ description }}">
+
+    {% if image_url %}
+      {% set share_image = image_url %}
+    {% else %}
+      {% set share_image = url_for('static', filename='chatlibs-share.png', _external=True) %}
+    {% endif %}
 
     <!-- Facebook Meta Tags -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ title }}">
     <meta property="og:description" content="{{ description }}">
-    <meta property="og:image" content="{{ image_url }}">
+    <meta property="og:image" content="{{ share_image }}">
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@chatlibs">
     <meta name="twitter:title" content="{{ title }}">
     <meta name="twitter:description" content="{{ description }}">
-    <meta name="twitter:image" content="{{ image_url }}">
+    <meta name="twitter:image" content="{{ share_image }}">
 </head>
 <body>
     <h4 id="header_title">Create your own at <a href="https://chatlibs.xyz">ChatLibs.xyz</a></h4>
-    <h1 id="header_title">{{ title }}</h1> <!-- Displaying the title -->
+    <h1 id="header_title">{{ title }}</h1>
     <br>
     <div id="chat_box">
-      {{ description }} <!-- Displaying the story -->
-    </div>  
-    <img src="{{ image_url }}" alt="Story Image" id="return_image"> <!-- Displaying the image -->
+      {{ description }}
+    </div>
+    {% if image_url %}
+    <img src="{{ image_url }}" alt="Story illustration" id="return_image">
+    {% endif %}
     <a target="_blank" href="https://donorschoose.org"><img src="{{ url_for('static', filename='donors-choose-ad.png') }}" alt="Ad Image" id="ad_image"></a>
-<!--    <h3 id="header_title"><a href="https://twitter.com/intent/tweet?text=Check+out+my+story%3A+{{ title }}+on+ChatLibs&url=https://chatlibs.xyz/story?title={{ title }}%26description={{ description }}%26image_url={{ image_url }}">Share this</a></h3> -->
 </body>
 </html>

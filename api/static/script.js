@@ -1,237 +1,245 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const chatBox = document.getElementById('chat_box');
     const inputField = document.getElementById('input_field');
     const enterButton = document.getElementById('enter_button');
     const returnImage = document.getElementById('return_image');
 
-    let currentStep = 1;
+    let flow = null;          // loaded from /api/config
+    let phase = 'loading';    // loading -> topic -> words -> generating -> done
+    let wordIndex = 0;
     let storyData = {};
 
-    // Prompts for each step
-    const prompts = [
-        "<strong>ChatLibs: </strong>Enter a topic for the story",  
-        "", 
-        "<strong>ChatLibs: </strong>Please give me an adjective",   
-        "<strong>ChatLibs: </strong>And a noun",
-        "<strong>ChatLibs: </strong>How about another adjective",
-        "<strong>ChatLibs: </strong>And a verb",
-        "<strong>ChatLibs: </strong>Thanks — tell me one more adjective",
-        "<strong>ChatLibs: </strong>One last noun",
-        ""
-    ];
+    // --- Chat box helpers ---------------------------------------------------
 
     function updateChatBox(message) {
         chatBox.innerHTML += `<div>${message}<br><br></div>`;
-        chatBox.scrollTop = chatBox.scrollHeight; // Scroll to the bottom
-
+        chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    function getNextPrompt() {
-        const predefinedInput = "none";
-        if (currentStep <= prompts.length) {
-            switch (currentStep) {
-                case 2:
-                    sendInputToServer(predefinedInput);
-                    break;
-                case 9:
-                    sendInputToServer(predefinedInput);
-                    break;
-                default:
-                    updateChatBox(prompts[currentStep - 1]);
-                    // Change button background back to original and enable it
-                    enterButton.classList.remove('button-waiting');
-                    enterButton.disabled = false;
-                    inputField.disabled = false;
-                    inputField.focus();
-            }
-        }
+    function chatlibsSays(message) {
+        updateChatBox(`<strong>ChatLibs: </strong>${message}`);
     }
 
-
-    function handleResponse(response) {
-        console.log("Handle response");
-        console.log(response);
-
-        if (response.responseVariableName && response.value) {
-            storyData[response.responseVariableName] = response.value;
-        }
-
-        if (response.addToChat) {
-            updateChatBox(response.addToChat);
-        }
-
-        if (currentStep == 2) {
-             updateChatBox("<strong>ChatLibs: </strong>Your story is: <br><strong>"+storyData.title+"</strong>");
-        }
-
-        if (currentStep == 8) {
-             updateChatBox("<br><strong>"+storyData.title+"</strong><br>");
-             emphasizeStoryWords()
-             updateChatBox(storyData.newStoryWithEmphasis);
-        }
-     
-        if (currentStep == 9) {
-             returnImage.src = storyData.imageURL; // Update the return image with the new image URL
-             updateChatBox("<strong>ChatLibs: </strong>Here is a link to your story you can share:");
-             updateChatBox("<a target='_blank' href=https://chatlibs.xyz/story?title="+encodeURIComponent(storyData.title)+"&description="+encodeURIComponent(storyData.newStory)+"&image_url="+encodeURIComponent(storyData.imageURL)+">"+storyData.title+"</a>");
-             // Remove the 'image-waiting' class to unhide the image
-             returnImage.classList.remove('image-waiting');
-        }
-
-        currentStep++;
-        getNextPrompt();
-    }
-
-function sendInputToServer(input) {
-    let url = 'api/route'; // Default URL
-    let body = {};
-    let doFetch = false;
-    console.log("Current step: " + currentStep);
-    console.log("Send input to server");
-
-    switch (currentStep) {
-        case 1:            
-            updateChatBox("<strong>ChatLibs: </strong>Thinking about your story...");
-            url = '/write_story';
-            body = { topic: input };
-            console.log(body);
-            doFetch = true;              
-            break;
-        case 2:
-            url = '/get_title';
-            body = { data: storyData.story };
-            console.log(body);
-            doFetch = true;              
-            break;
-        case 3:
-            storyData.adjective1 = input;
-            break;
-        case 4:
-            storyData.noun1 = input;
-            break;
-        case 5:
-             storyData.adjective2 = input;
-            break;
-        case 6:
-            storyData.verb = input;
-            break;
-        case 7:
-            storyData.adjective3 = input;
-            break;
-        case 8:
-            storyData.noun2 = input;
-            updateChatBox("<strong>ChatLibs: </strong>Here we go!...");
-            inputField.classList.add('hidden-element');
-            enterButton.classList.add('hidden-element');
-            url = '/write_newStory';
-            body = {
-                story: storyData.story,
-                adjective1: storyData.adjective1,
-                adjective2: storyData.adjective2,
-                adjective3: storyData.adjective3,
-                noun1: storyData.noun1,
-                noun2: storyData.noun2,
-                verb: storyData.verb
-            };
-            console.log(body);
-            doFetch = true;              
-            break;
-        case 9:
-            updateChatBox("<strong>ChatLibs: </strong>Drawing a picture for you!");
-            url = '/get_image';
-            body = { data: storyData.newStory };
-            console.log(body);
-            doFetch = true;  
-            break;
-        default:
-            break;
-            body = { step: currentStep, input: input, storyData: storyData };
-            break;
-    }
-
-    if (doFetch) {
-      fetch(url, {
-          method: 'POST',
-          body: JSON.stringify(body),
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      })
-      .then(response => response.json())
-      .then(data => handleResponse(data))
-      .catch(error => console.error('Error:', error));
-    } else {
-        handleResponse("No server step");
-    }
-}
-
-    function emphasizeStoryWords() {
-        // Check if the required data exists
-        if (!storyData.newStory || !storyData.adjective1 || !storyData.adjective2 || !storyData.adjective3 || !storyData.noun1 || !storyData.verb || !storyData.noun2 ) {
-            console.error('Missing story data for emphasis');
-            return;
-        }
-
-        // List of words to emphasize
-        const wordsToEmphasize = [storyData.adjective1, storyData.adjective2, storyData.adjective3, storyData.noun1, storyData.verb, storyData.noun2];
-
-        // Create a new story with emphasis
-        let emphasizedStory = storyData.newStory;
-
-        // Replace each word with its emphasized version
-        wordsToEmphasize.forEach(word => {
-            const regex = new RegExp(`\\b${word}\\b`, 'gi'); // Match the word as a whole word, case-insensitive
-            emphasizedStory = emphasizedStory.replace(regex, `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`);
-        });
-
-        // Assign the new story with emphasis to storyData
-        storyData.newStoryWithEmphasis = emphasizedStory;
-    }
-    
-    // Function to handle input submission
-    function handleSubmit() {
-        const userInput = inputField.value;
-        inputField.value = '';
-        // Change button background to grey and disable it
+    function lockInput() {
         enterButton.classList.add('button-waiting');
-        enterButton.disabled=true;
-        inputField.disabled=true;
-        updateChatBox(`<strong>You:</strong> ${userInput}`);
-        sendInputToServer(userInput);
+        enterButton.disabled = true;
+        inputField.disabled = true;
     }
 
-    // Listen for "Enter" key press in the input field
-    inputField.addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            console.log("type");
-            event.preventDefault(); // Prevent the default form submission behavior
-            if (inputField.value.trim() !== '') {
-                handleSubmit(); // Call the submit function if input is not empty
+    function unlockInput() {
+        enterButton.classList.remove('button-waiting');
+        enterButton.disabled = false;
+        inputField.disabled = false;
+        inputField.focus();
+    }
+
+    function hideInput() {
+        inputField.classList.add('hidden-element');
+        enterButton.classList.add('hidden-element');
+    }
+
+    // --- Server calls -------------------------------------------------------
+
+    async function callApi(url, body) {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        let data = {};
+        try { data = await response.json(); } catch (e) { /* non-JSON error */ }
+        if (!response.ok || data.error) {
+            throw new Error(data.error || `Request failed (${response.status})`);
+        }
+        return data;
+    }
+
+    // --- Word emphasis (highlights the user's words in the swapped story) ---
+
+    function emphasizeStory(story) {
+        let emphasized = story;
+        flow.words.forEach(function (w) {
+            const word = storyData[w.slot];
+            if (!word) return;
+            const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`\\b${escaped}\\b`, 'gi');
+            emphasized = emphasized.replace(
+                regex,
+                `<em><strong><u>&nbsp;${word}&nbsp;</u></strong></em>`
+            );
+        });
+        return emphasized;
+    }
+
+    // --- Restart ------------------------------------------------------------
+
+    function offerRestart() {
+        const link = document.createElement('a');
+        link.href = '#';
+        link.textContent = 'Write another story';
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            restart();
+        });
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = '<strong>ChatLibs: </strong>';
+        wrapper.appendChild(link);
+        wrapper.innerHTML += '<br><br>';
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function restart() {
+        storyData = {};
+        wordIndex = 0;
+        chatBox.innerHTML = '&nbsp;';
+        returnImage.src = '';
+        returnImage.classList.add('image-waiting');
+        inputField.classList.remove('hidden-element');
+        enterButton.classList.remove('hidden-element');
+        startTopicPhase();
+    }
+
+    // --- Flow phases --------------------------------------------------------
+
+    function startTopicPhase() {
+        phase = 'topic';
+        chatlibsSays(flow.intro);
+        unlockInput();
+    }
+
+    function promptNextWord() {
+        chatlibsSays(flow.words[wordIndex].prompt);
+        unlockInput();
+    }
+
+    async function handleTopic(topic) {
+        chatlibsSays('Thinking about your story...');
+        const storyResp = await callApi('/api/story', { topic: topic });
+        storyData.story = storyResp.story;
+
+        const titleResp = await callApi('/api/title', { story: storyData.story });
+        storyData.title = titleResp.title;
+        chatlibsSays(`Your story is: <br><strong>${storyData.title}</strong>`);
+
+        phase = 'words';
+        wordIndex = 0;
+        promptNextWord();
+    }
+
+    async function finishStory() {
+        phase = 'generating';
+        hideInput();
+        chatlibsSays('Here we go!...');
+
+        const words = {};
+        flow.words.forEach(function (w) { words[w.slot] = storyData[w.slot]; });
+
+        const remixResp = await callApi('/api/remix', {
+            story: storyData.story,
+            words: words
+        });
+        storyData.newStory = remixResp.story;
+
+        updateChatBox(`<br><strong>${storyData.title}</strong><br>`);
+        updateChatBox(emphasizeStory(storyData.newStory));
+
+        chatlibsSays('Drawing a picture for you!');
+        const imageResp = await callApi('/api/image', { story: storyData.newStory });
+        storyData.image = imageResp.image;
+
+        returnImage.src = storyData.image;
+        returnImage.classList.remove('image-waiting');
+
+        const shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
+            '&description=' + encodeURIComponent(storyData.newStory);
+        chatlibsSays('Here is a link to your story you can share:');
+        updateChatBox(`<a target="_blank" href="${shareUrl}">${storyData.title}</a>`);
+
+        phase = 'done';
+        offerRestart();
+    }
+
+    // --- Input handling -----------------------------------------------------
+
+    async function handleSubmit() {
+        const userInput = inputField.value.trim();
+        if (userInput === '') return;
+        inputField.value = '';
+        updateChatBox(`<strong>You:</strong> ${userInput}`);
+        lockInput();
+
+        try {
+            if (phase === 'topic') {
+                await handleTopic(userInput);
+            } else if (phase === 'words') {
+                storyData[flow.words[wordIndex].slot] = userInput;
+                wordIndex += 1;
+                if (wordIndex < flow.words.length) {
+                    promptNextWord();
+                } else {
+                    await finishStory();
+                }
             }
+        } catch (err) {
+            handleError(err);
+        }
+    }
+
+    function handleError(err) {
+        console.error(err);
+        chatlibsSays(
+            'Oops — something went wrong (' + err.message + '). ' +
+            'Let\'s try that again.'
+        );
+        if (phase === 'generating') {
+            // The story exists but image/remix failed — let them start over.
+            offerRestart();
+        } else {
+            // Recoverable mid-question: re-show the same prompt and re-enable.
+            inputField.classList.remove('hidden-element');
+            enterButton.classList.remove('hidden-element');
+            unlockInput();
+        }
+    }
+
+    inputField.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSubmit();
         }
     });
 
-    // Listen for button click
-    enterButton.addEventListener('click', function() {
-        console.log("click");
-        if (inputField.value.trim() !== '') {
-            handleSubmit(); // Call the submit function if input is not empty
-        }
+    enterButton.addEventListener('click', function () {
+        handleSubmit();
     });
 
-    const inputFields = document.querySelectorAll('input');
-
-    inputFields.forEach(input => {
-        input.addEventListener('focus', () => {
-            document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    // Mobile: lock zoom while typing, restore on blur (preserved from original).
+    document.querySelectorAll('input').forEach(function (input) {
+        input.addEventListener('focus', function () {
+            document.querySelector('meta[name=viewport]').setAttribute(
+                'content',
+                'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+            );
         });
-        input.addEventListener('blur', () => {
-            document.querySelector('meta[name=viewport]').setAttribute('content', 'width=device-width, initial-scale=1');
+        input.addEventListener('blur', function () {
+            document.querySelector('meta[name=viewport]').setAttribute(
+                'content', 'width=device-width, initial-scale=1'
+            );
         });
     });
 
+    // --- Boot ---------------------------------------------------------------
 
-    // Start the conversation with the first prompt
-
-    getNextPrompt();
+    lockInput();
+    fetch('/api/config')
+        .then(function (r) { return r.json(); })
+        .then(function (config) {
+            flow = config;
+            startTopicPhase();
+        })
+        .catch(function (err) {
+            console.error(err);
+            chatlibsSays('Could not start the game. Please refresh the page.');
+        });
 });
