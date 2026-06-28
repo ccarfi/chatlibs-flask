@@ -14,8 +14,10 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 import base64
+import re
 
 from flask import Flask, jsonify, render_template, request
+from markupsafe import Markup, escape
 
 import storage
 from ai import AIError, generate_image, generate_text
@@ -53,6 +55,24 @@ def _strip_heading(text):
     return text
 
 
+def _emphasize(text, words):
+    """Wrap each user word in the story with the same emphasis the in-app chat
+    uses. Everything is HTML-escaped first and only our own trusted tags are
+    injected, so the result is safe to render on the share page (#29)."""
+    html = str(escape(text))
+    for word in words:
+        if not word:
+            continue
+        pattern = r"\b" + re.escape(str(escape(word))) + r"\b"
+        html = re.sub(
+            pattern,
+            lambda m: "<em><strong><u>&nbsp;" + m.group(0) + "&nbsp;</u></strong></em>",
+            html,
+            flags=re.IGNORECASE,
+        )
+    return Markup(html)
+
+
 # --- Pages ------------------------------------------------------------------
 
 @app.route("/")
@@ -69,11 +89,14 @@ def story():
     image_url = request.args.get("image_url", "")
     if not (image_url.startswith("https://") or image_url.startswith("data:")):
         image_url = ""
+    description = request.args.get("description", "")
     return render_template(
         "story.html",
         image_url=image_url,
         title=request.args.get("title", "A ChatLibs Story"),
-        description=request.args.get("description", ""),
+        description=description,  # plain text — used in the meta/OG tags
+        # emphasized HTML — used for the visible story body (#29)
+        description_html=_emphasize(description, request.args.getlist("w")),
     )
 
 

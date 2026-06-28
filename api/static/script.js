@@ -199,6 +199,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (storyData.image && storyData.image.startsWith('http')) {
             shareUrl += '&image_url=' + encodeURIComponent(storyData.image);
         }
+        // Pass the user's words so the share page can highlight them too (#29).
+        flow.words.forEach(function (w) {
+            const v = storyData[w.slot];
+            if (v) shareUrl += '&w=' + encodeURIComponent(v);
+        });
         chatlibsSays('Here is a link to your story you can share:');
         updateChatBox('<a target="_blank" href="' + escapeHtml(shareUrl) + '">' +
             escapeHtml(storyData.title) + '</a>');
