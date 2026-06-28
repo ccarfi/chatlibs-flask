@@ -166,14 +166,20 @@ def get_image():
         # would otherwise render (quotes, "SPLAT!", character names) out of its
         # input entirely, which matters far more than prompt instructions.
         describe_prompt = (
-            "You are planning a single illustration for a children's book. "
-            "Based on the story below, write a 2-3 sentence description of one "
-            "visual scene to illustrate. Describe only what is physically "
-            "visible: the characters' appearance, the setting, the action, "
-            "colors, and mood. Do NOT include any dialogue, quotations, sound "
-            "effects, onomatopoeia, character names, signs, or any words meant "
-            "to appear as text. Refer to characters by appearance, not by name. "
-            f"Return only the description.\n\nStory:\n{story_text}"
+            "You are planning a single, fun illustration for a deliberately "
+            "silly Mad Libs children's story. Based on the story below, write a "
+            "2-3 sentence description of one visual scene to illustrate. The "
+            "story is absurd on purpose: KEEP the weird, unexpected, and "
+            "incongruous objects and qualities and depict them LITERALLY rather "
+            "than normalizing them — e.g. a 'trout book' is a fish-shaped book, "
+            "a 'truckytrailer' is a truck trailer, a 'foggy pencil' is a pencil "
+            "wreathed in fog. Make these surprising elements prominent in the "
+            "scene. Describe only what is physically visible: the characters' "
+            "and objects' appearance, the setting, the action, colors, and mood. "
+            "Do NOT include any dialogue, quotations, sound effects, character "
+            "names, signs, or any words meant to appear as text in the image. "
+            "Refer to characters by appearance, not by name. Return only the "
+            f"description.\n\nStory:\n{story_text}"
         )
         scene = generate_text(
             describe_prompt,
