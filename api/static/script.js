@@ -192,8 +192,13 @@ document.addEventListener('DOMContentLoaded', function () {
         returnImage.src = storyData.image;
         returnImage.classList.remove('image-waiting');
 
-        const shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
+        let shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
             '&description=' + encodeURIComponent(storyData.newStory);
+        // Include the image only if it's a hosted URL (Blob); data URIs are too
+        // big for a query string and won't render in social previews.
+        if (storyData.image && storyData.image.startsWith('http')) {
+            shareUrl += '&image_url=' + encodeURIComponent(storyData.image);
+        }
         chatlibsSays('Here is a link to your story you can share:');
         updateChatBox('<a target="_blank" href="' + escapeHtml(shareUrl) + '">' +
             escapeHtml(storyData.title) + '</a>');
