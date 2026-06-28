@@ -83,21 +83,41 @@ def config():
 
 # --- AI endpoints -----------------------------------------------------------
 
+# Placeholder tokens the story is generated around, e.g. "{adjective1}", in the
+# A-N-A-V-A-N order. The remix step fills these by literal substitution.
+SLOTS = [w["slot"] for w in FLOW["words"]]
+
+
 @app.route("/api/story", methods=["POST"])
 def write_story():
     def produce():
         topic = request.get_json(force=True)["topic"]
+        tokens = ", ".join("{" + s + "}" for s in SLOTS)
         prompt = (
             f"Write a creative, silly 75-word children's story about {topic}. "
             "Include characters, a conflict, rising action, a surprising "
-            "resolution, and a piece of short dialogue. Do not include a title "
-            "or any heading — return only the story prose."
+            "resolution, and a piece of short dialogue. The story MUST contain "
+            "these fill-in-the-blank placeholder tokens, each appearing EXACTLY "
+            "once, placed where that part of speech fits naturally in a "
+            f"sentence: {tokens}. Write each token literally with its curly "
+            "braces (for example: a {adjective1} hat). Tokens named 'adjectiveN' "
+            "are adjectives, 'nounN' are nouns, and 'verb' is a verb. Do not "
+            "explain the tokens, and do not include a title or heading. Return "
+            "only the story."
         )
-        story_text = generate_text(
-            prompt,
-            system="You are a playful children's story writer.",
-        )
-        return {"story": _strip_heading(story_text)}
+        # Every blank must be present, so validate and retry; keep the best
+        # attempt (fewest missing) if the model still slips.
+        best, best_missing = "", len(SLOTS) + 1
+        for _ in range(3):
+            story_text = _strip_heading(generate_text(
+                prompt, system="You are a playful children's story writer."))
+            missing = sum(1 for s in SLOTS if "{" + s + "}" not in story_text)
+            if missing == 0:
+                return {"story": story_text}
+            if missing < best_missing:
+                best, best_missing = story_text, missing
+        app.logger.warning("Story template missing %d blank(s)", best_missing)
+        return {"story": best}
 
     return _ai_route(produce)
 
@@ -107,8 +127,9 @@ def get_title():
     def produce():
         story_text = request.get_json(force=True)["story"]
         prompt = (
-            "Create a catchy, creative title for this children's story. "
-            f"Return only the title, with no quotation marks.\n\n{story_text}"
+            "Create a catchy, creative title for this children's story. The "
+            "{curly-brace} tokens are fill-in-the-blank placeholders — ignore "
+            f"them. Return only the title, with no quotation marks.\n\n{story_text}"
         )
         return {"title": generate_text(prompt, max_tokens=64)}
 
@@ -119,27 +140,18 @@ def get_title():
 def remix_story():
     def produce():
         data = request.get_json(force=True)
-        original = data["story"]
-        words = data["words"]  # {slot: value, ...}; slot name encodes the part of speech
-        # Label each word with its part of speech (adjective1 -> adjective) so
-        # the model places it correctly.
-        replacements = "\n".join(
-            f"- {slot.rstrip('0123456789')}: {value}"
-            for slot, value in words.items()
-        )
-        prompt = (
-            "Rework the story below so that it naturally includes EVERY one of "
-            "the words listed, each used at least once and as the indicated part "
-            "of speech. This is the whole point of the game, so do NOT drop or "
-            "skip any word. Prefer swapping a word of the same part of speech; "
-            "if a word has no natural slot, lightly adjust that sentence so the "
-            "word fits. Use each word in the exact form given where you can. "
-            "Keep the story coherent, silly, family-friendly, and about the same "
-            "length. Return only the updated story.\n\n"
-            f"Story:\n{original}\n\n"
-            f"Words that must ALL appear:\n{replacements}"
-        )
-        return {"story": _strip_heading(generate_text(prompt))}
+        template = data["story"]
+        words = data["words"]  # {slot: value, ...}
+        # True Mad Libs: drop the user's words into the blanks verbatim and leave
+        # the rest of the story untouched (#25). No model rewording — purely
+        # mechanical, so the original text and the incongruity are preserved.
+        filled = template
+        for slot, value in words.items():
+            filled = filled.replace("{" + slot + "}", value)
+        # Remove any blank the story step failed to fill, so no "{noun2}" leaks.
+        for slot in SLOTS:
+            filled = filled.replace("{" + slot + "}", "")
+        return {"story": filled}
 
     return _ai_route(produce)
 
