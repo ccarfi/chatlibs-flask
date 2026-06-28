@@ -1,3 +1,4 @@
 Flask==3.0.0
 anthropic>=0.40
 google-genai>=0.3
+vercel_blob>=0.4

@@ -15,7 +15,6 @@ Env vars:
     GOOGLE_API_KEY  (or GEMINI_API_KEY) required for the google provider
 """
 
-import base64
 import os
 
 TEXT_PROVIDER = os.getenv("TEXT_PROVIDER", "anthropic")
@@ -64,7 +63,10 @@ def _anthropic_text(prompt, system, max_tokens):
 # --- Image ------------------------------------------------------------------
 
 def generate_image(prompt):
-    """Generate an image and return it as a ``data:`` URI for inline display."""
+    """Generate an image and return it as raw JPEG bytes.
+
+    The caller decides how to deliver it (upload to Blob for a durable URL, or
+    inline as a data URI)."""
     if IMAGE_PROVIDER == "google":
         return _google_image(prompt)
     raise AIError(f"Unknown IMAGE_PROVIDER: {IMAGE_PROVIDER!r}")
@@ -96,6 +98,4 @@ def _google_image(prompt):
         # Most commonly a safety filter blocked the prompt.
         raise AIError("No image was generated (it may have been filtered).")
 
-    data = images[0].image.image_bytes
-    b64 = base64.b64encode(data).decode("utf-8")
-    return f"data:image/jpeg;base64,{b64}"
+    return images[0].image.image_bytes

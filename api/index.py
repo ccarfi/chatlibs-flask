@@ -13,8 +13,11 @@ import sys
 # and the sibling imports below would fail. Add this file's directory explicitly.
 sys.path.insert(0, os.path.dirname(__file__))
 
+import base64
+
 from flask import Flask, jsonify, render_template, request
 
+import storage
 from ai import AIError, generate_image, generate_text
 from flow import FLOW
 
@@ -193,9 +196,36 @@ def get_image():
             "letters, captions, labels, or speech bubbles — a purely wordless "
             f"picture.\n\nScene: {scene}"
         )
-        return {"image": generate_image(prompt)}
+        img_bytes = generate_image(prompt)
+
+        # If Blob storage is configured, upload for a durable public URL (so the
+        # share page can show the image). Otherwise, and on any upload failure,
+        # fall back to an inline data URI shown in-app only.
+        if storage.blob_enabled():
+            try:
+                return {"image": storage.upload_image(img_bytes)}
+            except Exception:
+                app.logger.exception("Blob upload failed; using inline image")
+        b64 = base64.b64encode(img_bytes).decode("utf-8")
+        return {"image": "data:image/jpeg;base64," + b64}
 
     return _ai_route(produce)
+
+
+@app.route("/api/cleanup")
+def cleanup():
+    """Daily Vercel Cron target: delete generated images older than 30 days.
+    Protected by CRON_SECRET when set (Vercel Cron sends it as a Bearer token)."""
+    secret = os.getenv("CRON_SECRET")
+    if secret and request.headers.get("Authorization") != f"Bearer {secret}":
+        return jsonify({"error": "unauthorized"}), 401
+    if not storage.blob_enabled():
+        return jsonify({"deleted": 0, "note": "blob not configured"})
+    try:
+        return jsonify({"deleted": storage.delete_old_images()})
+    except Exception as e:
+        app.logger.exception("Cleanup failed")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":

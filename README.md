@@ -49,9 +49,14 @@ python api/index.py
 | `IMAGE_MODEL`    | `imagen-4.0-generate-001` | |
 | `TEXT_PROVIDER`  | `anthropic`               | |
 | `IMAGE_PROVIDER` | `google`                  | |
+| `BLOB_READ_WRITE_TOKEN` | —                  | optional; enables durable share-page images via Vercel Blob (auto-added when you create a Blob store). Unset = inline data URIs. |
+| `CRON_SECRET`    | —                         | optional; protects the daily `/api/cleanup` cron |
 
 ## Notes
 
-- Images are returned as `data:` URIs and shown in-app only (ephemeral, by
-  design). The shareable `/story` page carries the title and story text; its
-  social-preview image falls back to the brand share image.
+- Images: with a Vercel Blob store configured (`BLOB_READ_WRITE_TOKEN`), each
+  generated image is uploaded for a durable public URL that the shareable
+  `/story` page and its social preview use; a daily cron (`/api/cleanup`)
+  deletes images older than 30 days. Without Blob configured, images are inline
+  `data:` URIs shown in-app only, and the share page falls back to the brand
+  image.
