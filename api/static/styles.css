@@ -194,21 +194,26 @@ body, html {
 .share-bar {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;   /* center rows so wrapped buttons look intentional */
   gap: 8px;
-  margin: 6px 0 16px;
+  margin: 10px 0 16px;
 }
 
 .share-button {
+  flex: 1 1 130px;           /* equal-width buttons that fill each row evenly */
+  max-width: 200px;          /* but don't over-stretch on wide screens */
+  box-sizing: border-box;
   background-color: #98aeea;   /* brand blue (matches the ENTER button) */
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-size: 14px;
   font-family: 'Mulish', sans-serif;
   cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
   text-decoration: none;
-  display: inline-block;
   transition-duration: 0.4s;
 }
 
@@ -216,9 +221,8 @@ body, html {
   background-color: #6b82d6;   /* darker blue on hover */
 }
 
-/* Centered share bar for the standalone /story page */
+/* Constrain + center the bar on the standalone /story page */
 .share-bar-center {
-  justify-content: center;
   max-width: 700px;
   width: calc(100% - 40px);
   margin-left: auto;
