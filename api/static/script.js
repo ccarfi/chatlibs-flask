@@ -192,18 +192,36 @@ document.addEventListener('DOMContentLoaded', function () {
         returnImage.src = storyData.image;
         returnImage.classList.remove('image-waiting');
 
-        let shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
-            '&description=' + encodeURIComponent(storyData.newStory);
-        // Include the image only if it's a hosted URL (Blob); data URIs are too
-        // big for a query string and won't render in social previews.
-        if (storyData.image && storyData.image.startsWith('http')) {
-            shareUrl += '&image_url=' + encodeURIComponent(storyData.image);
+        const hostedImage =
+            storyData.image && storyData.image.startsWith('http') ? storyData.image : '';
+
+        // Persist the story for a short, durable share link (#31). If that
+        // isn't available (no Blob, or it errors), fall back to a self-contained
+        // link that carries everything in the query string.
+        let shareUrl = null;
+        try {
+            const saveResp = await callApi('/api/save', {
+                title: storyData.title,
+                story: storyData.newStory,
+                words: flow.words.map(function (w) { return storyData[w.slot]; }),
+                image_url: hostedImage
+            });
+            if (saveResp.id) shareUrl = '/story?id=' + encodeURIComponent(saveResp.id);
+        } catch (e) {
+            console.error('save failed, using inline link', e);
         }
-        // Pass the user's words so the share page can highlight them too (#29).
-        flow.words.forEach(function (w) {
-            const v = storyData[w.slot];
-            if (v) shareUrl += '&w=' + encodeURIComponent(v);
-        });
+        if (!shareUrl) {
+            shareUrl = '/story?title=' + encodeURIComponent(storyData.title) +
+                '&description=' + encodeURIComponent(storyData.newStory);
+            // Include the image only if it's a hosted URL; data URIs are too big
+            // for a query string and won't render in social previews.
+            if (hostedImage) shareUrl += '&image_url=' + encodeURIComponent(hostedImage);
+            // Pass the words so the share page can highlight them too (#29).
+            flow.words.forEach(function (w) {
+                const v = storyData[w.slot];
+                if (v) shareUrl += '&w=' + encodeURIComponent(v);
+            });
+        }
         chatlibsSays('Here is a link to your story you can share:');
         updateChatBox('<a target="_blank" href="' + escapeHtml(shareUrl) + '">' +
             escapeHtml(storyData.title) + '</a>');

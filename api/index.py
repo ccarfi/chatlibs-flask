@@ -86,17 +86,38 @@ def story():
     # (images are ephemeral), but the param is public, so refuse anything that
     # isn't an https/data URL. Jinja autoescaping covers title/description, and
     # the client URL-encodes them via encodeURIComponent.
-    image_url = request.args.get("image_url", "")
+    sid = request.args.get("id")
+    if sid:
+        # Persisted story (#31): load the record by id.
+        record = storage.load_story(sid) if storage.blob_enabled() else None
+        if record is None:
+            title = "Story not found"
+            description = (
+                "This story link has expired or is invalid. Stories are kept "
+                "for 30 days. Create your own at ChatLibs.xyz!"
+            )
+            words, image_url = [], ""
+        else:
+            title = record.get("title", "A ChatLibs Story")
+            description = record.get("story", "")
+            words = record.get("words", [])
+            image_url = record.get("image_url", "")
+    else:
+        # Self-contained link: everything is in the query string.
+        title = request.args.get("title", "A ChatLibs Story")
+        description = request.args.get("description", "")
+        words = request.args.getlist("w")
+        image_url = request.args.get("image_url", "")
+
     if not (image_url.startswith("https://") or image_url.startswith("data:")):
         image_url = ""
-    description = request.args.get("description", "")
     return render_template(
         "story.html",
         image_url=image_url,
-        title=request.args.get("title", "A ChatLibs Story"),
+        title=title,
         description=description,  # plain text — used in the meta/OG tags
         # emphasized HTML — used for the visible story body (#29)
-        description_html=_emphasize(description, request.args.getlist("w")),
+        description_html=_emphasize(description, words),
     )
 
 
@@ -249,6 +270,26 @@ def cleanup():
     except Exception as e:
         app.logger.exception("Cleanup failed")
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/save", methods=["POST"])
+def persist_story():
+    """Persist a story (title/text/words/image) and return a short id for the
+    share link (#31). Returns id=None when Blob isn't configured so the client
+    falls back to a self-contained query-string link."""
+    def produce():
+        data = request.get_json(force=True)
+        if not storage.blob_enabled():
+            return {"id": None}
+        record = {
+            "title": data.get("title", ""),
+            "story": data.get("story", ""),
+            "words": data.get("words", []),
+            "image_url": data.get("image_url", ""),
+        }
+        return {"id": storage.save_story(record)}
+
+    return _ai_route(produce)
 
 
 if __name__ == "__main__":
