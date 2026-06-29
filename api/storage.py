@@ -13,12 +13,20 @@ and callers fall back to inline data URIs.
 """
 
 import datetime
+import json
 import os
+import re
+import secrets
+import urllib.request
 
-# All ChatLibs images live under this prefix so cleanup never touches anything
-# else in the store.
+# All ChatLibs blobs (images + story records) live under this prefix so cleanup
+# never touches anything else in the store.
 PREFIX = "chatlibs/"
+STORIES_PREFIX = PREFIX + "stories/"
 MAX_AGE_DAYS = 30
+
+# Valid persisted-story id (what we generate); also guards lookups from URLs.
+_ID_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 
 def blob_enabled():
@@ -35,6 +43,35 @@ def upload_image(data, content_type="image/jpeg"):
         {"addRandomSuffix": "true", "contentType": content_type},
     )
     return resp["url"]
+
+
+def save_story(record):
+    """Persist a story record (dict) as JSON; return a short id for the share link.
+    Stored under chatlibs/stories/<id>.json so the 30-day cleanup prunes it too."""
+    import vercel_blob
+
+    sid = secrets.token_urlsafe(9)
+    data = json.dumps(record).encode("utf-8")
+    vercel_blob.put(
+        STORIES_PREFIX + sid + ".json",
+        data,
+        {"contentType": "application/json"},
+    )
+    return sid
+
+
+def load_story(sid):
+    """Load a persisted story record by id, or None if missing/expired/invalid."""
+    import vercel_blob
+
+    if not sid or not _ID_RE.fullmatch(sid):
+        return None
+    pathname = STORIES_PREFIX + sid + ".json"
+    blobs = vercel_blob.list({"prefix": pathname, "limit": "1"}).get("blobs", [])
+    if not blobs:
+        return None
+    with urllib.request.urlopen(blobs[0]["url"]) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 def _parse_uploaded_at(value):
