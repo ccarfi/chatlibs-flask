@@ -58,6 +58,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (div && div.parentNode) div.parentNode.removeChild(div);
     }
 
+    // --- Share buttons (#4) -------------------------------------------------
+    // The share bar itself is built by the shared share.js (buildShareBar);
+    // it's also used on the /story page so recipients can re-share.
+
+    function addShareBar(url, title, imageUrl) {
+        chatBox.appendChild(window.buildShareBar({ url: url, title: title, imageUrl: imageUrl }));
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
     // --- Server calls -------------------------------------------------------
 
     async function callApi(url, body) {
@@ -222,9 +231,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (v) shareUrl += '&w=' + encodeURIComponent(v);
             });
         }
-        chatlibsSays('Here is a link to your story you can share:');
+        const absoluteUrl = window.location.origin + shareUrl;
+        chatlibsSays('Here is your story — share it!');
         updateChatBox('<a target="_blank" href="' + escapeHtml(shareUrl) + '">' +
             escapeHtml(storyData.title) + '</a>');
+        addShareBar(absoluteUrl, storyData.title, hostedImage);
 
         phase = 'done';
         offerRestart();
