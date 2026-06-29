@@ -36,6 +36,19 @@
     {% if image_url %}
     <img src="{{ image_url }}" alt="Story illustration" id="return_image">
     {% endif %}
+    <div id="share_bar" class="share-bar-center"></div>
     <a target="_blank" href="https://donorschoose.org"><img src="{{ url_for('static', filename='donors-choose-ad.png') }}" alt="Ad Image" id="ad_image"></a>
+
+    <script src="{{ url_for('static', filename='share.js') }}"></script>
+    <script>
+      (function () {
+        var bar = window.buildShareBar({
+          url: window.location.href,
+          title: {{ title | tojson }},
+          imageUrl: {{ (image_url or '') | tojson }}
+        });
+        document.getElementById('share_bar').appendChild(bar);
+      })();
+    </script>
 </body>
 </html>
