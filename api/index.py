@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 import base64
+import random
 import re
 
 from flask import Flask, jsonify, render_template, request
@@ -140,17 +141,26 @@ def write_story():
     def produce():
         topic = request.get_json(force=True)["topic"]
         tokens = ", ".join("{" + s + "}" for s in SLOTS)
+        # Break the model out of its default rut (every story was "Benny" the
+        # squirrel/frog): force a random name initial and add an entropy seed so
+        # each call's context differs. Chosen once per request so retries agree.
+        letter = random.choice("ABCDEFGHIJKLMNOPRSTUVWZ")
+        seed = random.randint(1000, 9999)
         prompt = (
             f"Write a creative, silly 75-word children's story about {topic}. "
             "Include characters, a conflict, rising action, a surprising "
-            "resolution, and a piece of short dialogue. The story MUST contain "
-            "these fill-in-the-blank placeholder tokens, each appearing EXACTLY "
-            "once, placed where that part of speech fits naturally in a "
-            f"sentence: {tokens}. Write each token literally with its curly "
-            "braces (for example: a {adjective1} hat). Tokens named 'adjectiveN' "
-            "are adjectives, 'nounN' are nouns, and 'verb' is a verb. Do not "
-            "explain the tokens, and do not include a title or heading. Return "
-            "only the story."
+            "resolution, and a piece of short dialogue. "
+            f"The main character's name MUST begin with the letter '{letter}'. "
+            "Invent a fresh, unexpected main character; avoid common default "
+            "names (such as Benny, Max, or Luna) and vary the kind of "
+            "creature, person, or thing — do not default to squirrels or frogs. "
+            "The story MUST contain these fill-in-the-blank placeholder tokens, "
+            "each appearing EXACTLY once, placed where that part of speech fits "
+            f"naturally in a sentence: {tokens}. Write each token literally with "
+            "its curly braces (for example: a {adjective1} hat). Tokens named "
+            "'adjectiveN' are adjectives, 'nounN' are nouns, and 'verb' is a "
+            "verb. Do not explain the tokens, and do not include a title or "
+            f"heading. Return only the story. (Variety seed: {seed})"
         )
         # Every blank must be present, so validate and retry; keep the best
         # attempt (fewest missing) if the model still slips.
